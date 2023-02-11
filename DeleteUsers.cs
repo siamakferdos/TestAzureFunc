@@ -12,27 +12,32 @@ using Microsoft.Extensions.Configuration;
 
 namespace SiaFunctionApp
 {
-    public class DeleteUsers
+    public static class DeleteUsers
     {
-        private IConfiguration _configuration;
-        public DeleteUsers(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
+        //private IConfiguration _configuration;
+        //public DeleteUsers(IConfiguration configuration)
+        //{
+        //    _configuration = configuration;
+        //}
 
         [FunctionName("DeleteUsers")]
-        public async Task<IActionResult> Run(
+        public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {
-            
-            SqlConnection sqlConnection = new SqlConnection(_configuration.GetConnectionString("SQLConnection"));
+            bool isLocal = string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"));
+
+            //string connectionString = _configuration.GetConnectionString("SQLConnection");
+            string connectionString = isLocal
+                ? Environment.GetEnvironmentVariable("ConnectionStrings:SQLConnection")
+                : Environment.GetEnvironmentVariable("SQLAZURECONNSTR_SQLConnection");
+            SqlConnection sqlConnection = new SqlConnection(connectionString);
             SqlCommand sqlCommand = new SqlCommand("DELETE From Users", sqlConnection);
             sqlConnection.Open();   
             await sqlCommand.ExecuteNonQueryAsync();
             sqlConnection.Close();
 
-            return new OkObjectResult("Users Deleted");
+            return new OkObjectResult("Users Deleted!!!");
         }
     }
 }
