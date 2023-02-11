@@ -32,7 +32,7 @@ namespace SiaFunctionApp
             await sqlCommand.ExecuteNonQueryAsync();
             sqlConnection.Close();
 
-            return new OkObjectResult("Deleted");
+            return new OkObjectResult("Users Deleted");
         }
     }
 }
